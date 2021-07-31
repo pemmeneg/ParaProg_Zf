@@ -1,0 +1,100 @@
+\section{Thread Pool}
+\textbf{Tasks:} Implementieren potentiell parallele Arbeitspakete. Werden in Warteschlange eingereiht.
+\textbf{Thread Pool:} Beschränkte Anzahl von Worker-Threads.
+Holen Tasks aus der Warteschlange und führen sie aus.
+
+\subsection{Vorteile}
+\textbf{Beschränkte Anzahl von Threads:} Viele Threads verlangsamen das System oder überschreiten Speicherlimit. 
+\textbf{Recycling der Threads:} Spare Thread-Erzeugung und Freigabe.
+\textbf{Höhere Abstraktion:} Trenne Task-Beschreibung von Task-Ausführung.
+\textbf{Anzahl Threads pro System konfigurierbar:} \#Worker Threads = \#Prozessoren + \#I/O-Aufrufe 
+
+\subsection{Einschränkung}
+Tasks dürfen nicht aufeinander Warten, sonst Deadlock.
+\textbf{Run to Completion:} Task muss zu Ende laufen, bevor Worker Thread anderen Task ausführen kann.
+\textbf{Ausnahme:} geschachtelte Tasks.
+
+\subsection{Java Fork-Join-Pool}
+\begin{lstlisting}
+var threadPool = new ForkJoinPool();
+Future<Integer> future = threadPool.submit(() -> {  });
+Int result = future.get(); // Blockiert bis Task beendet
+\end{lstlisting}
+
+\subsubsection{Future Konzept}
+Repräsentiert ein zukünftiges Resultat.
+Proxy auf Resultat, das evtl. noch nicht bekannt ist. 
+Muss Ende der Berechnung abwarten, bevor Resultat zurückgegeben wird.
+
+\subsubsection{Rekursive Task Erstellung}
+\begin{lstlisting}
+class CountTask extends RecursiveTask<Integer> {
+    // Constructor
+    @Override
+    protected Integer compute() {
+        // no / single element => return result
+        // Calculate lower, middle, upper
+        var left = new CountTask(lower, middle);
+        var right = new CountTask(middle, upper);
+        left.fork(); right.fork();
+        return right.join() + left.join();
+    }
+}
+// Ausfuehrung 
+var threadPool = new ForkJoinPool();
+int res = threadPool.invoke(new CountTask(2, N)); // blockiert
+\end{lstlisting}
+
+\subsubsection{Keine Über-Parallelisierung}
+Tuning mit Schwellwert durch Programmierer.
+Verhältnis zwischen Arbeitspaketgrösse und Anzahl Tasks optimieren.
+
+\subsubsection{Fork Join Pool Internals}
+\textbf{Automatischer Parallelitätsgrad:} Default: \#Worker Threads = \#Prozessoren
+Dynamisches Hinzufügen / Wegnehmen von Threads
+\textbf{Common Pool:} Verhindert Engpässe durch zu viele Thread Pools.
+
+
+\subsection{Asynchrone Programmierung}
+\textbf{Unnötige Synchronität:} Langlaufende Rechnungen, I/O Aufrufe.\\ 
+\textbf{Asynchroner Aufruf:} Aufrufer soll während der Operation weitermachen.
+
+\begin{lstlisting}
+// Klassisch
+Future<long> future = threadPool.submit(() -> { });
+    // other work 
+process(future.get());
+// Modern
+CompletableFuture<long> future = 
+                    CompletableFuture.supplyAsync(() -> { });
+    // other work 
+process(future.get());
+\end{lstlisting}
+
+\subsubsection{Ende des async Aufrufs}
+\textbf{Caller-zentrisch (Pull):} Caller warted auf Task-Ende und holt sich Resultat, Future abfragen.
+\textbf{Callee-zentrisch (Push):} Async Operation informiert direkt über Resultat. Completion Callback.
+
+\subsubsection{Continuation}
+Folgeaufgabe an asynchrone Aufgabe anhängen.
+\begin{lstlisting}
+// thenApply() fuer Continuation mit Rueckgabe
+future.thenAccept(res -> System.out.println(res));
+\end{lstlisting}
+\textbf{Ausführung:} durch beliebigen Thread, durch Initiator, wenn Future bereits Resultat hat.
+\textbf{Asynchrone Continuations:} \textit{thenAcceptAsync()} bzw. \textit{thenApplyAsync()}.
+
+\subsubsection{Multi-Continuation}
+\begin{lstlisting}
+CompletableFuture.allOf(f1, f2).thenAcceptAsync(() -> { }));
+CompletableFuture.any(f1, f2).thenAcceptAsync(() -> { }));
+\end{lstlisting}
+
+\subsubsection{Fire and Forget}
+Task starten, ohne das Ende abzuwarten. Submitter ruft kein \textit{get()} oder \textit{join()} auf.
+\begin{lstlisting}
+CompletableFuture.runAsync(() -> { });
+\end{lstlisting}
+\textbf{Daemon Workers:} Workers Threads in Fork-Join-Pools sind Daemon.
+Anwendung kann vor Task-Ende stoppen.\\ 
+\textbf{Ingorierte Exceptions:} Exceptions in Fire \& Forget Task werden ignoriert.
