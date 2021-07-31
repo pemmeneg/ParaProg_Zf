@@ -1,0 +1,45 @@
+\section{GPU Parallelisierung}
+512, 1024, 3584, 5760 Cores. 
+Sehr spezifische langsamere Prozessoren.
+\subsection{GPU Aufbau}
+\textbf{SP (Streaming Processor):} 8-192 SPs pro SM 
+\textbf{SM (Streaming Multiprocessor):} z.B. 1-30 SM
+\textbf{SIMD:} SM ist prinzipiell SIMD (Single Instruction Multiple Data), Vektorparallelität
+Alle Cores führen gleiche Instruktion aus, Einzelne können sie auch nicht ausführen.
+
+\subsection{GPU vs. CPU}
+\textbf{GPU:} hohe Datenparallelität, wenig Verzweigungen, Kein beliebiges Warten, Kleine Caches pro Core. Ziel: Hoher Gesamtdurchsatz
+\textbf{CPU:} Gegenteil, Ziel: Niedrige Latenz pro Thread
+
+\subsection{NUMA Modell}
+\textbf{Non-Uniform-Memory-Access:} Kein gemeinsamer Hauptspeicher zwischen GPU und CPU.
+Explizites Übertragen.
+
+\subsection{CUDA - Computer Unified Device Architecture}
+\textbf{CUDA Blocks:} Threads sind in Blöcke gruppiert.
+Blöcke sind im gleichen SM. Threads können innerhalb Block interagieren.
+\textbf{Ausführungsmodell:}
+Thread: virt. Skalarprozessor. 
+Block: virt. Multiprozessor.
+Blöcke müssen unabhängig sein. Run To Completion.
+Beliebige Ausführungsreihenfolge.
+Grad der Parallelität durch GPU bestimmt. 
+Automatische Skalierung.
+\textbf{Ablauf:} 1. Auf GPU allozieren \textit{cudaMalloc}, 
+2. Daten au GPU transferieren \textit{cudaMemcpy},
+3. Kernel ausführen,
+4. Rücktransfer, 
+5. Auf GPU deallozieren
+
+\subsubsection{Datenaufteilung}
+\textbf{threadIdx.x:} ThreadId im Block.
+\textbf{blockIdx.x:} Nummer des Blocks.
+\textbf{blockDim.x:} Blockgrösse.
+Programmierende modellieren Datenaufteilung selber.
+
+\subsubsection{Boundary Check}
+Falls Mehr Threads als zu bearbeitende Daten.
+Threads mit $i \geq N$ dürfen nicht auf Daten zugreifen.
+
+\subsubsection{Unified Memory}
+Automatischer Transfer CPU - GPU.
