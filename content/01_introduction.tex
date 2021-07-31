@@ -31,7 +31,7 @@ JVM ist ein Prozess im Bsys.
 \textbf{Main-Thread} wird beim Aufstarten der JVM anhand \textit{main()} Methode erzeugt.
 JVM läuft, solange Threads laufen (Ausnahme Daemon Threads).
 \begin{lstlisting}
-var myThread = new Thread(() -> { // ... });
+var myThread = new Thread(() -> { /* ... */ });
 myThread.start();
 \end{lstlisting}
 Thread wird erst bei \textit{start()} erzeugt. Führt \textit{run()}-Methode des Runnable Interface aus.
@@ -41,7 +41,7 @@ Thread endet beim Verlassen von \textit{run()}.\\
 \begin{lstlisting}
 class SimpleLogic implements Runnable {
     @Override
-    public void run() { // ... }
+    public void run() { /* ... */ }
 }
 var myThread = new Thread(new SimpleLogic()).start();
 \end{lstlisting}
@@ -50,7 +50,7 @@ var myThread = new Thread(new SimpleLogic()).start();
 \begin{lstlisting}
 class SimpleThread extends Thread {
     @Override 
-    public void run() { // ... }
+    public void run() { /* ... */ }
 }
 var myThread = new SimpleThread().start();
 \end{lstlisting}

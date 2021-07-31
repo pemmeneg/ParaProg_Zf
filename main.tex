@@ -45,13 +45,14 @@
 \definecolor{darkGreen}{RGB}{0,150,0}
 \definecolor{DarkPurple}{rgb}{0.4, 0.1, 0.4}
 
+
 \lstset{
 frame=none,
 captionpos=b,
 escapeinside={*'}{'*},
 language=Java,
 tabsize=2,
-commentstyle=\it,
+commentstyle=\it\color{javared},
 stringstyle=\mdseries\rmfamily,
 showspaces=false,
 keywordstyle=\bfseries\color{RoyalBlue},
@@ -93,8 +94,11 @@ belowskip = 0.2em
     \setlength{\columnseprule}{0.4pt}
     \footnotesize
     \begin{multicols*}{4}
-
+ 
         \input{content/01_introduction.tex}
+        \input{content/02_monitor_sych.tex}
+        \input{content/03_spez_synch.tex}
+        \input{content/04_gefahren.tex}
 
     \end{multicols*}
 \end{document}

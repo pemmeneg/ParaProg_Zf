@@ -1,0 +1,110 @@
+\section{Spezifische Synchronisationsprimitiven}
+\subsection{Semaphoren}
+Vergabe einer beschränkten Anzahl freier Ressourcen. Objekt mit Zähler (Anzahl freier Ressourcen).
+\textbf{aquire():} Bezieht Ressource. Warten falls keie Verfügbar, sonst Zähler - 1.
+\textbf{release():} Ressource freigeben, Zähler + 1.
+\subsubsection{Arten}
+\textbf{Allgemeine:} Zähler zwischen 0 bis N.
+\textit{new Semaphore(N)}.
+\textbf{Binäre:} Zähler 0 oder 1. \textit{new Semaphore(1)}. (Gegenseitiger Ausschluss)
+\textbf{Faire Semaphoren:} \textit{new Semaphore(N, true)}, FIFO Warteschlange, langsamer.
+
+\begin{lstlisting}
+private Semaphore upperL = new Semaphore(CAP, true);
+private Semaphore lowerL = new Semaphore(0, true);
+public void put(T item) throws InterruptedException {
+    upperL.acquire();
+    synchronized (queue) { queue.add(item); }
+    lowerL.release();
+}
+public T get() throws InterruptedException {
+    T item; lowerL.aquire();
+    synchronized (queue) { item = queue.remove(); }
+    upperL.release(); return item;
+}
+\end{lstlisting}
+\textbf{Multi-Acquire/Release:} \textit{acquire(N)}.
+
+\subsection{Lock \& Condition}
+Monitor mit mehreren Wartelisten für verschiedene Bedingungen.
+\textbf{Lock-Objekt:} Sperre für Eintritt in Monitor.
+\textbf{Condition-Objekt:} Wait \& Signal für bestimmte Bedingung.
+
+\begin{lstlisting}
+private Lock monitor = new ReentrantLock(true); // fair
+private Condition nonFull = monitor.newCondition();
+private Condition nonEmpty = monitor.newCondition();
+public void put(T item) throws InterruptedException {
+    monitor.lock();
+    try {
+        while(queue.size() == Capacity) { nonFull.await(); }
+        queue.add(item);
+        nonEmpty.signal();
+    } finally { monitor.unlock(); }
+}
+public T get() throws InterruptedException {
+    monitor.lock();
+    try {
+        while(queue.size() == 0) { nonEmpty.await(); }
+        T item = queue.remove();
+        nonFull.signal();
+        return item;
+    } finally { monitor.unlock(); }
+}
+\end{lstlisting}
+
+\subsection{Read-Write Locks}
+Gegenseitiger Ausschluss ist unnötig streng für lesende Abschnitte.
+Erlaube parallele Lese-Zugriffe.
+
+\begin{lstlisting}
+private Collection<String> names = new HashSet<>();
+private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+public boolean exists(String pattern) { // Read-only accesses
+    rwLock.readLock().lock();
+    try {
+        return names.steram().anyMatch(n -> n.matches(pattern));
+    } finally { rwLock.readLock().unlock(); }
+}
+public void insert(String name) { // Write / Read accesses
+    rwLock.writeLock().lock();
+    try {
+        names.add(name);
+    } finally { rwLock.writeLock().unlock(); }
+}
+\end{lstlisting}
+
+\subsection{Count Down Latch}
+Synchronisationsprimitive mit Count Down Zähler.
+Threads können warten, bis Zähler <= 0 wird.
+\textbf{await():} warten bis Count Down 0 ist.
+\textbf{countDown():} Zähler - 1.
+
+\begin{lstlisting}
+var ready = new CountDownLatch(N); // Warte auf N cars
+var start = new CountDownLatch(1); // Einer gibt signal
+// N Cars:
+ready.countDown(); start.await();
+// RaceControl:
+ready.await(); start.countDown();
+\end{lstlisting}
+
+\subsection{Cyclic Barrier}
+Treffpunkt für fixe Anzahl Threads. Anzahl treffender Threads muss vorgegeben sein.
+Ist wiederverwendbar (mehrere Runden).
+
+\begin{lstlisting}
+var start = new CyclicBarrier(N); // Treffende Autos
+// N Cars:
+start.await(); // braucht kein Race Control mehr
+
+var gameRound = new CyclicBarrier(N);
+// N Players:
+while(true) {
+    gameRound.await(); // play concurrently with others
+}
+
+// Mit Austausch
+Exchanger.exchange(something);
+// Blockiert bis anderer Thread auch exchange() aufruft.
+\end{lstlisting}
