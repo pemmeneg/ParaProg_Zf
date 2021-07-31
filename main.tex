@@ -44,7 +44,39 @@
 \definecolor{lightgray}{rgb}{.9,.9,.9}
 \definecolor{darkGreen}{RGB}{0,150,0}
 \definecolor{DarkPurple}{rgb}{0.4, 0.1, 0.4}
+\definecolor{cshbg}{RGB}{215,245,255}
 
+\lstdefinelanguage{csh}
+{
+  % list of keywords
+  morekeywords={
+    abstract, event, new, struct, syntax, option, package, service, message, returns, repeated
+as, explicit, null, switch,
+base, extern, object, this,
+bool, false, operator, throw,
+break, finally, out, true,
+byte, fixed, override, try,
+case, float, params, typeof,
+catch, for, private, uint,
+char, foreach, protected, ulong,
+checked, goto, public, unchecked,
+class, if, readonly, unsafe,
+const, implicit, ref, ushort,
+continue, in, return, using,
+decimal, int, int32, int16, int64 sbyte, virtual,
+default, interface, sealed, volatile,
+delegate, internal, short, void,
+do, is, sizeof, while, get,
+double, lock, stackalloc,
+else, long, static,
+enum, namespace, string, var, volatile, Task, Parallel
+  },
+  sensitive=true, % keywords are not case-sensitive
+  morecomment=[l]{//}, % l is for line comment
+  morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+  morestring=[b]",
+  backgroundcolor=\color{cshbg}
+}
 
 \lstset{
 frame=none,
@@ -100,6 +132,7 @@ belowskip = 0.2em
         \input{content/03_spez_synch.tex}
         \input{content/04_gefahren.tex}
         \input{content/05_thread_pool.tex}
+        \input{content/06_task_parallel_library.tex}
 
     \end{multicols*}
 \end{document}
