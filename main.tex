@@ -69,7 +69,7 @@ delegate, internal, short, void,
 do, is, sizeof, while, get,
 double, lock, stackalloc,
 else, long, static,
-enum, namespace, string, var, volatile, Task, Parallel
+enum, namespace, string, var, volatile, Task, Parallel, Thread
   },
   sensitive=true, % keywords are not case-sensitive
   morecomment=[l]{//}, % l is for line comment
@@ -133,6 +133,8 @@ belowskip = 0.2em
         \input{content/04_gefahren.tex}
         \input{content/05_thread_pool.tex}
         \input{content/06_task_parallel_library.tex}
+        \input{content/07_gui_threading.tex}
+        \input{content/08_memory_models.tex}
 
     \end{multicols*}
 \end{document}

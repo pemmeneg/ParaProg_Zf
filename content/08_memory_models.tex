@@ -1,0 +1,62 @@
+\section{Memory Models}
+\textbf{Lock-Freie Programmierung:} Korrekte nebenläufige Interaktionen ohne Locks.
+Garantien des Speichermodels nutzen.
+\subsection{Ursachen für Probleme}
+\textbf{Weak Consistency:} Speicherzugriffe werden in verschiedenen Reihenfolgen aus verschiedenen Threads gesehen.
+Ausnahme: Synchronisationen/Speicherbarrieren
+\textbf{Optimierungen:} Compiler, Laufzeitsystem und CPUs, Instruktionen werden umgeordnet/wegoptimiert.
+
+\subsection{Java Memory Model}
+\subsubsection{Atomicity}
+Einzelnes Lesen / Schreiben ist atomar für: Primitive Datentypen, Obj-Referenzen, long und double nur mit \textit{volatile} Keyword.\\ 
+\textbf{Unteilbarkeit $\neq$ Sichtbarkeit:} Nach Write sieht anderer Thread vlt. noch alten Wert.
+
+\subsubsection{Visibility}
+\textbf{Garantierte Sichtbarkeit zwischen Threads:}
+Locks Release \& Acquire, Volatile Variable, Thread/Task-Start und Join, Initialisierung von final Variablen.
+
+\subsubsection{Ordering}
+\textbf{Program Order:} 'as-if-serial', Sequentielles Verhalten jedes Threads bleibt erhalten. (Andere Threads dürfen es anders sehen)
+\textbf{Synchronization Order (Total Order):} Synchronizationsbefehle werden zueinander nie umgeordnet.
+\textbf{Happens-Before Relation (Partial Order):} Alles andere kann umgeordnet werden, ausser es gibt garantierte Sichtbarkeit unter den Threads.
+
+\subsection{Java Synchronization Order}
+\begin{lstlisting}
+// Keine Umordnung in Java, weil alles volatile
+volatile boolean a = false, b = false;
+a = true; while(!b) { } // Thread 1 
+b = true; while(!a) { } // Thread 2 
+// Nicht korrekt, da nicht atomar 
+private volatile boolean locked = false;
+public void aqcuire() {
+    while(locked) { }
+    locked = true;
+}
+// Spin-Lock mit atomarer Operation
+private AtomicBoolean locked = new AtomicBoolean(false);
+public void acquire() {
+    while (locked.getAndSet(true)) { }
+}
+public void release() { locked.set(false); }
+// Atomares Compare and Set, setzt Update falls Wert gleich expect
+boolean compareAndSet(boolean expect, boolean upadte);
+// Optimistische Synchronization
+do {
+    oldValue = var.get(); newValue = calcChange(oldValue);
+} while (!var.compareAndSet(oldValue, newValue));
+\end{lstlisting}
+
+\subsection{.NET Memory Model}
+\textbf{Unterschied zu Java:} Atomicity: long/double auch ohne volatile atomar.
+Visibility: Nicht definiert, implizit durch Ordering.
+Ordering: nur Half und Full Fences.\\ 
+\textbf{Atomare Instruktionen:} \textit{Interlocked} Klasse
+
+\subsubsection{Volatile Half Fences}
+\textbf{Volatile Write:} Vorangehende Zugriffe bleiben davor. (Release Semantik)
+\textbf{Volatile Read:} Nachfolgende Zugriffe bleiben danach. (Acquire Semantik)
+
+\subsubsection{Full Fence: Memory Berrier}
+\begin{lstlisting}[language=csh]
+Thread.MemoryBarrier(); // Verbietet Umordnung in beide Richtungen
+\end{lstlisting}
