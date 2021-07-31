@@ -1,0 +1,36 @@
+\subsection{Speicherstufen}
+\textbf{Shared Memory:} Per SM.
+Schnell ca 4 Zyklen.
+Nur zwischen Threads innerhalb Block sichtbar.
+Paar KB.
+\textit{\_\_shared\_\_ float x;}
+\textbf{Global Memory:}
+Main Memory in GPU.
+Langsam, ca. 400-600 Zyklen.
+Allen Threads sichtbar.
+Mehrere GB.
+\textit{cudaMalloc()}
+
+\subsection{Block Barriere}
+\begin{lstlisting}
+__syncThreads();
+\end{lstlisting}
+In if/else nur falls für alle Threads eines Blocks.
+
+\subsection{Warp}
+Block wird intern in Warps zerlegt (je 32 Threads).
+\textbf{Ausführung:} SIMD.
+SM kann alle Warps eines Blocks beherbergen. Nur wenige laufen echt parallel (1 bis 24).
+
+\subsection{Divergenz}
+Unterschiedliche Verzweigungen im selben Warp.
+\textit{if/switch/while/do/for}.
+SM führt Intruktionen der einen Verzweigung durch, dann Instruktionen einer anderen Verzweigung.
+\textbf{Performance Problem}
+Schlechter Fall: Divergenz innerhlab derselben Warp.
+Guter Fall: Gleiche Verzweigung im Warp.
+
+\subsection{Memory Coalescing}
+Zugriffsmuster für Performance optimieren.
+\textbf{Burst:}  Falls Threads auf 32-Byte-Bereiche zugreifen.
+Sonst teure Einzel-Zugriffe. (je 400 Zyklen pro Global Memory)
