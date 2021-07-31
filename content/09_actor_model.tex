@@ -1,0 +1,59 @@
+\section{Actor Model}
+Substantiell anderes Programmierkonzept.
+\textbf{Aktive Objekte:} haben nebenläufiges Innenleben.
+\textbf{Kommunikation:} Objekte senden und empfangen Nachrichten.
+\textbf{Kein Shared Memory:} Nur Austausch von Nachrichten.
+
+\subsection{CSP}
+\textbf{Communicating Sequential Processes:}
+Prozesse kommunizieren indirekt über Channels. 
+Austausch erfolgt unmittelbar und synchron.
+\textbf{Unterschied:} Actor hat keine Channels, Senden ist immer asynchon, keine garantierte Reihenfolge des Empfangs.
+
+\subsection{Vorteile: Actor, CSP} 
+\textbf{Inhäerente Nebenläufigkeit:} Alle Obj (Actors) laufen nebenläufig.
+Maschine kann Grad an Nebenläufigkeit ausnutzen.
+\textbf{Keine Race Conditions:} Kein Shared Memory. Nachrichtenaustausch synchronisiert implizit.
+\textbf{Gute Verteilbarkeit:} Kein Shared Memory. 
+Nachrichtenaustausch für Netz prädestiniert.
+
+\subsection{Akka}
+Actor Model für JVM. Actors haben privaten Zustand, kann aber auf JVM nicht enforced werden.
+Eine Mailbox pro Actor: Ein Buffer für alle ankommenden Nachrichten. Asynchones Senden.\\ 
+\textbf{Empfangsverhalten:} Reaktion auf ankommende Nachricht. Behandlungsmethode wird ausgeführt.
+Effekte per Behandlung (Ändere Zustand, Sende Nachrichten, Erzeuge neue Actors).
+Intern sequentiell, nur eine Nachricht auf einmal behandelbar.
+\begin{lstlisting}
+public class Printer extends UntypedActor {
+    public void onReceive(final Object message) {
+        if(message instanceof Integer) { } } }
+// Erzeugen und Senden
+ActorSystem system = ActorSystem.create("System");
+ActorRef p = system.actorOf(Props.create(Printer.class));
+for(int i = 0; i < 100; i++) {
+    printer.tell(i, ActorRef.noSender()); // simple async
+}
+System.shutdown();
+\end{lstlisting}
+
+\textbf{Anwendung:}
+Alternative zu Threads, Transaction-Processing, 
+Backend für Service, Kommunikations-Hub.\\ 
+\textbf{Actor Hierarchies:}
+Passend zu URL Adressierungsschema. Erzeuger ist Parent. 
+\textit{ActorSelection} selektiert Teilbaum, broadcast möglich.
+
+\subsubsection{Actor Remoting:}
+\textbf{Remote Lookup:} \textit{system.actorSelection} mit URL.
+Leichtgewichtiger als \textit{ActorRef}.
+Kann 0..n Actors umfassen und zu \textit{ActorRef} aufgelöst werden.
+\textbf{Remote Erzeugen:} \textit{system.actorOf()}, \textit{application.conf} spezifiziert, wo Actor erstellt wird.
+Keine Codeänderungen.
+
+\subsubsection{System Shutdown}
+\begin{lstlisting}
+getContext().stop(actorRef); // Stoppt nach Bearbeitung
+getContext().stop(getSelf()); // Rekursiv
+getContext().system().terminate();
+actor.tell(PoisonPill.getInstance(), sender); 
+\end{lstlisting}
