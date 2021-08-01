@@ -1,0 +1,24 @@
+\section{Cluster Parallelisierung}
+\textbf{Motivation:} möglichst hohe Beschleunigung. Viele CPU Cores statt nur viele GPU Cores.
+\textbf{Computer Cluster:} Verbund leistungsfähiger Rechenknoten.
+Meist gleichartig und fest verbunden an einem Standort. Sehr schnelles Interconnect.
+\textbf{HPC Anleitung:} Programcode uploaden, Auf Cluster Kompilieren, HPC-Job lancieren, Job-Ende abwarten, Job-Resultat anschauen.
+\textbf{Verteiltes Programmiermodel:} Programm auf mehreren Nodes ausführen. Kein Shared Memory (NUMA) zwischen nodes, nur für Cores im Node (SMP).
+\textbf{Message Passing Interface (MPI):} Basiert auf Actor/CSP Prinzip.
+\begin{lstlisting}
+MPI_Init(&argc, &argv); // MPI Initialisierung 
+MPI_Comm_rank(MPI_COMM_WORLD, &rank); // Prozess Identifikation
+MPI_Finalize(); // MPI Finalisierung
+MPI_Send(&val, 1, MPI_INT, recRank, tag, MPI_COMM_WORLD);
+MPI_Recv(&val, 1, MPI_INT, senderRank, tag, MPI_COMM_WORLD, 
+                                        MPI_STATUS_IGNORE);
+MPI_Barrier(MPI_COMM_WORLD); // Wartet auf alle Prozesse
+MPI_Allreduce(&val, &total, 1, MPI_INT, MPI_SUM, 
+    MPI_COMM_WORLD); // Aggregation von Teilresultaten
+MPI_Reduce(&val, &total, 1, MPI_INT, MPI_SUM, recRank, 
+    MPI_COMM_WORLD); // Effizienter, kein Broadcast
+\end{lstlisting}
+\textbf{SPMD:} Single Program Multiple Data. MPI Programm wird in mehrere Prozesse gestart.
+Prozesse können untereinander kommunizieren.
+\textbf{Communicator:} Gruppe von MPI-Prozessen. 
+Communicator World: Alle Prozesse einer MPI-Programmausführung.
