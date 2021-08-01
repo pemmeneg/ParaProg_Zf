@@ -1,0 +1,62 @@
+\section{Concurrency in Python}
+\textbf{GIL:} Global Interpreter Lock. 
+Nur ein Thread kann Python Byte-Code ausführen.
+Kein Speedup für CPU-Bount Operationen möglich. Data Races durch Reordering dennoch möglich, Visibility nicht garantiert.
+Kein definiertes Memory Model.
+\begin{lstlisting}[language=python]
+from threading import Thread
+from multiprocessing import Process
+if __name__ == '__main__':
+    t = Thread( # p = Process
+        target=fibonacci,
+        args=(10,)
+    ).start();
+    t.join();
+# Shared Memory
+res = Value('i', -1, lock=False); // Typ, InitialWert, lock
+\end{lstlisting}
+
+\subsection{Pools}
+\textbf{Threads:} \textit{concurrent.futures.thread.ThreadPoolExecutor}
+\textbf{Prozesse:} \textit{concurrent.futures.process.ProcessPoolExecutor} / \textit{multiprocessing.Pool}
+\begin{lstlisting}[language=python]
+if __name__ == '__main__':
+    with ProcessPoolExecutor() as pool:
+        future = pool.submit(fib, 10) # or: map(fib, [1,2,3])
+        print(future.res()); # Blockiert bis Task-Ende
+\end{lstlisting}
+
+\subsection{Asnychrone Programmierung (asyncio)}
+\textbf{Coroutine-Functions:} werden erst beim \textit{await} ausgeführt.
+Keine parallele Ausführung. Ausnahme: Coroutine wird als Task verpackt.
+\begin{lstlisting}[language=python]
+async def sub_routine(n):
+    await asyncio.sleep(n);
+if __name__ == 'main__':
+    asyncio.run(sub_routine(1))
+\end{lstlisting}
+
+
+\section{JavaScript Concurrency}
+Grundsätzlich Single-Threaded mit einem Event-Loop.
+Kein Schutz vor Race-Condition.
+\begin{lstlisting}
+function delay(ms) {
+    let promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms); }); }
+async function countTo(n) {
+    for (let = 1; i <= n; i++) {
+        await delay(1000); } }
+\end{lstlisting}
+\subsection{Web-Worker}
+Entsprechen einem Thread im Browser. Datenaustausch primär über Messaging.
+Werden mit Quelldatei gestartet. Langlebiger Prozess mit eigenem Event-Loop.
+\begin{lstlisting}
+onmessage = event => { // Worker definieren
+    const n = event.data; const res = fib(n);
+    postMessage(res); }
+const worker = new Worker('w.js'); // Worker verwenden
+worker.onmessage = event => {
+    console.log(event.data); }
+worker.postMessage(42);
+\end{lstlisting}
