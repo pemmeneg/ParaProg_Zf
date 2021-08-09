@@ -37,9 +37,7 @@ class CountTask extends RecursiveTask<Integer> {
         var left = new CountTask(lower, middle);
         var right = new CountTask(middle, upper);
         left.fork(); right.fork();
-        return right.join() + left.join();
-    }
-}
+        return right.join() + left.join(); } }
 // Ausfuehrung 
 var threadPool = new ForkJoinPool();
 int res = threadPool.invoke(new CountTask(2, N)); // blockiert

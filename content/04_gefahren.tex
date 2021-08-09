@@ -23,7 +23,6 @@ accout.setBalance(account.getBalance() + 100);
 \end{lstlisting}
 
 \subsubsection{Kombinationen}
-\includegraphics[width=0.6\linewidth]{img/race_condition.png}\\ 
 \textbf{Alles Synchronisieren?} Hilft nichts. Race Condition trotzdem möglich. Weitere Nebenläufigkeitsfehler.
 Synchronisationskosten sind relativ teuer.
 
@@ -86,7 +85,6 @@ a = false; while (!b) { } a = true;
 \end{lstlisting}
 
 \subsubsection{Deadlock Erkennung}
-\includegraphics[width=0.7\linewidth]{img/betriebsmittelgraph.png}\\
 \textit{Deadlock = Zyklus im Betriebsmittelgraph}\\ 
 \textbf{Deadlock Voraussetzungen:} Geschachtelte Locks, Zyklische Warteabhänigkeiten
 

@@ -17,15 +17,11 @@ private object syncObject = new(); // Monitor auf HilfsObj
 public void Widthdraw(decimal amount) {
     lock (syncObject) {
         while(amout > balance) { Monitor.Wait(syncObject); }
-        balance -= amount;
-    }
-}
+        balance -= amount; } }
 public void Deposit(decimal amount) {
     lock (syncObject) {
         balance += amount;
-        Monitor.PulseAll(syncObject);
-    }
-}
+        Monitor.PulseAll(syncObject);  } }
 \end{lstlisting}
 
 \subsection{.NET Synchronisationsprimitiven}
@@ -39,7 +35,6 @@ Work Stealing Thread Pool.
 \textbf{Verschiedene Abstraktionsstufen:} Task Parallelization: Explizite Tasks starten und warten.
 Data Parallelization: Parallele Statements und Queries.
 Asynchrone Programmierung: mit Continuation Style.
-\includegraphics[width=0.7\linewidth]{img/work_stealing_thread_pool.png}
 
 \subsubsection{Thread Injection}
 TPL fügt zur Laufzeit neue Worker Threads hinzu.
@@ -56,8 +51,7 @@ Console.Write(task.Result); // Blockiert
 Task.Run(() => {
     var left = Task.Run(() => { }); 
     var right = Task.Run(() => { });
-    int res = left.Result + right.Result;
-});
+    int res = left.Result + right.Result; });
 \end{lstlisting}
 
 \subsubsection{Parallele Statements}
@@ -81,15 +75,13 @@ Parallel.For(0, array.Length, i => Calc(array[i]));
 Schlaufe mit vielen sehr kurzen Bodies ist ineffizient.
 TPL gruppiert automatisch mehrere Bodies zu Task.
 Aufteilung gemäss verfügbaren Worker Threads.\\
-\includegraphics[width=0.7\linewidth]{img/partitionierung.png}\\ 
 \textbf{Explizite Partitionierung:} Vorteil: Weniger Body-Delegates, Nachteil: Künstliche Unterschleife.
 \begin{lstlisting}[language=csh]
 Parallel.ForEach(Partitioner.Create(0, array.Length), 
     (range, _) => {
         for (int i = range.Item1; i < range.Item2; i++) {
             Calc(array[i]);
-        }
-    })
+        } })
 \end{lstlisting}
 
 \subsection{Parallel LINQ}
