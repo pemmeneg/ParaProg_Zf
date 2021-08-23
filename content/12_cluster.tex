@@ -1,8 +1,7 @@
 \section{Cluster Parallelisierung}
+\textbf{Synchron:} Send \& Recv sind blockierend.\\ 
+\textit{mpiexe -n 100 programm.exe}\\
 \textbf{Motivation:} möglichst hohe Beschleunigung. Viele CPU Cores statt nur viele GPU Cores.
-\textbf{Computer Cluster:} Verbund leistungsfähiger Rechenknoten.
-Meist gleichartig und fest verbunden an einem Standort. Sehr schnelles Interconnect.
-\textbf{HPC Anleitung:} Programcode uploaden, Auf Cluster Kompilieren, HPC-Job lancieren, Job-Ende abwarten, Job-Resultat anschauen.
 \textbf{Verteiltes Programmiermodel:} Programm auf mehreren Nodes ausführen. Kein Shared Memory (NUMA) zwischen nodes, nur für Cores im Node (SMP).
 \textbf{Message Passing Interface (MPI):} Basiert auf Actor/CSP Prinzip.
 \begin{lstlisting}

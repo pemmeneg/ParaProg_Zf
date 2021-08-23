@@ -84,14 +84,6 @@ Parallel.ForEach(Partitioner.Create(0, array.Length),
         } })
 \end{lstlisting}
 
-\subsection{Parallel LINQ}
-Parallelisierung von Langauge-Integrated Query. Pendant zu Java Steam API.
-Keyword: \textit{AsParallel()}
-\begin{lstlisting}[language=csh]
-from book in bookCol.AsParallel()
-    where book.Title.Contains("Java") select book.ISBN
-\end{lstlisting}
-
 \subsection{Asynchrone Programmierung mit TPL}
 \subsubsection{Task Continuation}
 \begin{lstlisting}[language=csh]

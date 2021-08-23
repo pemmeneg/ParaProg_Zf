@@ -1,8 +1,6 @@
 \section{Thread Pool}
-\textbf{Tasks:} Implementieren potentiell parallele Arbeitspakete. Werden in Warteschlange eingereiht.
-\textbf{Thread Pool:} Beschränkte Anzahl von Worker-Threads.
-Holen Tasks aus der Warteschlange und führen sie aus.
-
+\textbf{Work-Stealing:} Vorteil: Effizienz duch weniger Contention.
+Nachteil: Fairnessprobleme bei unausgeglichenen Verteilungen.
 \subsection{Vorteile}
 \textbf{Beschränkte Anzahl von Threads:} Viele Threads verlangsamen das System oder überschreiten Speicherlimit. 
 \textbf{Recycling der Threads:} Spare Thread-Erzeugung und Freigabe.
@@ -10,6 +8,7 @@ Holen Tasks aus der Warteschlange und führen sie aus.
 \textbf{Anzahl Threads pro System konfigurierbar:} \#Worker Threads = \#Prozessoren + \#I/O-Aufrufe 
 
 \subsection{Einschränkung}
+Daemon: Laufen nicht garantiert zu Ende bei Fire \& Forget.
 Tasks dürfen nicht aufeinander Warten, sonst Deadlock.
 \textbf{Run to Completion:} Task muss zu Ende laufen, bevor Worker Thread anderen Task ausführen kann.
 \textbf{Ausnahme:} geschachtelte Tasks.
@@ -21,12 +20,9 @@ Future<Integer> future = threadPool.submit(() -> {  });
 Int result = future.get(); // Blockiert bis Task beendet
 \end{lstlisting}
 
-\subsubsection{Future Konzept}
-Repräsentiert ein zukünftiges Resultat.
-Proxy auf Resultat, das evtl. noch nicht bekannt ist. 
-Muss Ende der Berechnung abwarten, bevor Resultat zurückgegeben wird.
-
 \subsubsection{Rekursive Task Erstellung}
+\textbf{Anzahl Tasks:} Java: Arraylänge, THRESHOLD.
+.NET: \# Freien Worker Threads falls \textless Arraylänge
 \begin{lstlisting}
 class CountTask extends RecursiveTask<Integer> {
     // Constructor
@@ -43,10 +39,6 @@ var threadPool = new ForkJoinPool();
 int res = threadPool.invoke(new CountTask(2, N)); // blockiert
 \end{lstlisting}
 
-\subsubsection{Keine Über-Parallelisierung}
-Tuning mit Schwellwert durch Programmierer.
-Verhältnis zwischen Arbeitspaketgrösse und Anzahl Tasks optimieren.
-
 \subsubsection{Fork Join Pool Internals}
 \textbf{Automatischer Parallelitätsgrad:} Default: \#Worker Threads = \#Prozessoren
 Dynamisches Hinzufügen / Wegnehmen von Threads
@@ -62,7 +54,7 @@ Dynamisches Hinzufügen / Wegnehmen von Threads
 Future<long> future = threadPool.submit(() -> { });
     // other work 
 process(future.get());
-// Modern
+// Modern, runAsync() falls kein Rueckgabewert
 CompletableFuture<long> future = 
                     CompletableFuture.supplyAsync(() -> { });
     // other work 
@@ -84,6 +76,7 @@ future.thenAccept(res -> System.out.println(res));
 
 \subsubsection{Multi-Continuation}
 \begin{lstlisting}
+// .allOf(futures).thenRun(() -> syso());
 CompletableFuture.allOf(f1, f2).thenAcceptAsync(() -> { }));
 CompletableFuture.any(f1, f2).thenAcceptAsync(() -> { }));
 \end{lstlisting}

@@ -1,14 +1,9 @@
 \section{Actor Model}
+\textbf{Async:} nicht Blockierend.\\
 Substantiell anderes Programmierkonzept.
 \textbf{Aktive Objekte:} haben nebenläufiges Innenleben.
 \textbf{Kommunikation:} Objekte senden und empfangen Nachrichten.
 \textbf{Kein Shared Memory:} Nur Austausch von Nachrichten.
-
-\subsection{CSP}
-\textbf{Communicating Sequential Processes:}
-Prozesse kommunizieren indirekt über Channels. 
-Austausch erfolgt unmittelbar und synchron.
-\textbf{Unterschied:} Actor hat keine Channels, Senden ist immer asynchon, keine garantierte Reihenfolge des Empfangs.
 
 \subsection{Vorteile: Actor, CSP} 
 \textbf{Inhäerente Nebenläufigkeit:} Alle Obj (Actors) laufen nebenläufig.
@@ -42,18 +37,3 @@ Backend für Service, Kommunikations-Hub.\\
 \textbf{Actor Hierarchies:}
 Passend zu URL Adressierungsschema. Erzeuger ist Parent. 
 \textit{ActorSelection} selektiert Teilbaum, broadcast möglich.
-
-\subsubsection{Actor Remoting:}
-\textbf{Remote Lookup:} \textit{system.actorSelection} mit URL.
-Leichtgewichtiger als \textit{ActorRef}.
-Kann 0..n Actors umfassen und zu \textit{ActorRef} aufgelöst werden.
-\textbf{Remote Erzeugen:} \textit{system.actorOf()}, \textit{application.conf} spezifiziert, wo Actor erstellt wird.
-Keine Codeänderungen.
-
-\subsubsection{System Shutdown}
-\begin{lstlisting}
-getContext().stop(actorRef); // Stoppt nach Bearbeitung
-getContext().stop(getSelf()); // Rekursiv
-getContext().system().terminate();
-actor.tell(PoisonPill.getInstance(), sender); 
-\end{lstlisting}

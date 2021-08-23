@@ -1,15 +1,6 @@
 
 \section{Monitor Synchronisation}
-\textbf{Synchronisation:} Einschränkung der Nebenläufigkeit.\\
-\textbf{Gemeinsame Ressourcen:} Threads teilen sich Adressraum und Heap.
-
 \subsection{Java Synchronized Methoden}
-\textbf{synchronized:} Modifier für Methoden. Body ist ein kritischer Abschnitt. 
-Wird unter gegenseitigem Ausschluss ausgeführt.
-\textbf{Funktionsweise:} Jedes Objekt hat einen Lock (Monitor-Lock).
-Max 1 Thead hat Lock. \textit{synchronized} belegt den Lock des Obj. Besetzt bei Eintritt oder warten bis frei.
-Beim Austritt der Methode wieder freigegeben.
-
 \begin{lstlisting}
 synchronized void f() { /* ... */ } // Object Lock
 static synchronized void g() { /* ... */ } // Class Lock
@@ -28,7 +19,7 @@ public synchronized void deposit(int a) {
     balance+= amount; notifyAll();
 }
 \end{lstlisting}
-\textbf{wait():} gibt Monitor-Lock temp. frei damit anderer Thread Bedingung erfüllen kann.
-\textbf{notify() / notifyAll():} Weckt beliebigen / alle Threads die warten. Notify: wenn Bedingung jeden Thread interessiert. 
+\textbf{notify():} Bei Uniform Waiters \& One-In-One-Out Bedingungen.
+\textbf{notifyAll():} Bei mehreren Bedingungen / One-In-Multiple-Out. 
 \textbf{Pauschales wait \& signal:} Wartende müssen selber schauen, ob sie ein Signal interessiert.
 \textbf{Signal and Continue:} Signalisierender Thread behält Monitor nach notify. Aufgeweckter Thread muss um Monitor-Eintritt kämpfen.

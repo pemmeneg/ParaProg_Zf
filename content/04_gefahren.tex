@@ -5,8 +5,9 @@ Sehr schwierig durch Tests zu finden.
 
 \subsection{Race Condition}
 Mehrere Threads greifen auf gemeinsame Ressourcen ohne genügend synchronisation zu.
-Mögliche falsche Resultate oder falsches Verhalten.
+Mögliche falsche Resultate oder falsches Verhalten (Lost Updates).
 Ursache oft ein Data Race, nicht immer.
+Keine Atomarität bei Time of Check / Time of Use
 
 \subsubsection{Data Race}
 Unsynchronisierter Zugriff auf gleichen Speicher.
@@ -61,18 +62,6 @@ Concurrent Collections (ConcurrentHashMap, etc.): \textbf{JA}.
 
 \subsection{Deadlock}
 Beide Threads sperren sich gegenseitig aus:
-\begin{lstlisting}
-syncrhonized(listA) { // Thread 1
-    syncrhonized(listB) {
-        listB.addAll(listA);
-    }
-}
-synchronized(listB) { // Thread 2
-    synchronized(listA) {
-        listA.addAll(listB);
-    }
-}
-\end{lstlisting}
 
 \subsubsection{Spezialfall: Livelocks}
 Threads haben sich gegenseitig permanent blockiert. Führen aber noch Warteinstruktionen aus.

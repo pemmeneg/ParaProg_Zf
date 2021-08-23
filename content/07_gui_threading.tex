@@ -6,11 +6,6 @@ Wiso basieren GUI-Frameworks auf Single-Thread Modell?\\
 \textbf{Synchronisationskosten:} Locking in allen Komponenten und Methoden relativ teuer.
 \textbf{Deadlock-Risiko:} Bei zyklischen geschachtelten Aufrufen (z.B. MVC).
 
-\subsection{UI Thread Model - Einschränkungen}
-Keine lange Operationen in UI Events, blockiert sonst das UI.
-Kein Zugriff auf UI-Elemente durch fremde Threads, sonst Race Condition. 
-UI Operationen müssen als Events in die UI Event Queue eingereiht werden.
-
 \subsection{Swing: Dispatching an UI Thread}
 Komponentenzugriffe an UI Thread delegieren.
 \begin{lstlisting}
@@ -23,35 +18,6 @@ button.addActionListener(event-> {
         var text = readHugeFile();
         SwingUtilities.invokeLater(() -> 
                 { textArea.setText(text); }); }).start(); });
-\end{lstlisting}
-
-\subsubsection{Swing Background Worker}
-Hiflsklasse für Hintergrund Arbeiten.
-Zeitaufwendige Operationen als Task in Thread Pool \textit{doInBackground()}.
-UI-Zugriffe durch EventDispatchThread \textit{done()}.
-\begin{lstlisting}
-// <return, zwischen Res>
-class BgCalc extends SwingWorker<Integer, Void> {
-    @Override
-    public Integer doInBackground() { return longCalc(); }
-    @Override
-    protected void done() {
-        try {
-            inst res = get(); label.setText(res);
-        } catch (InterruptedException | ExecutionException e) 
-        { } } }
-\end{lstlisting}
-
-\subsection{Android Async Task}
-\begin{lstlisting}
-// <input, zwischen Res, return>
-class BgCalc extends AsyncTask<Void, Void, Integer> {
-    @Override
-    public Integer doInBackground(Void... input) {
-        return longCalc(); }
-    @Override
-    public void onPostExecute(Integer res) {
-        view.setText(res); } }
 \end{lstlisting}
 
 \subsection{.NET UI Threading Modell}

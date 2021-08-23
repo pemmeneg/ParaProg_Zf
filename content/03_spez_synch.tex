@@ -1,12 +1,5 @@
 \section{Spezifische Synchronisationsprimitiven}
-\subsection{Semaphoren}
-Vergabe einer beschränkten Anzahl freier Ressourcen. Objekt mit Zähler (Anzahl freier Ressourcen).
-\textbf{aquire():} Bezieht Ressource. Warten falls keie Verfügbar, sonst Zähler - 1.
-\textbf{release():} Ressource freigeben, Zähler + 1.
-\subsubsection{Arten}
-\textbf{Allgemeine:} Zähler zwischen 0 bis N.
-\textit{new Semaphore(N)}.
-\textbf{Binäre:} Zähler 0 oder 1. \textit{new Semaphore(1)}. (Gegenseitiger Ausschluss)
+\subsection{Arten}
 \textbf{Faire Semaphoren:} \textit{new Semaphore(N, true)}, FIFO Warteschlange, langsamer.
 
 \begin{lstlisting}

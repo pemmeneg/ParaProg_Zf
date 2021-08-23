@@ -2,27 +2,6 @@
 %! Date = 10/06/2021
 
 \section{Multithreading Grundlagen}
-\textbf{Parallelität:} Aufteilung in Teilabläufe, laufen gleichzeitig auf mehreren Prozessoren.
-\textbf{Nebenläufigkeit:} Gleichzeitig oder verzahnt ausführbare Abläufe, greifen au gemeinsame Ressourcen zu.
-\textbf{Prozess:} Parallel laufende Programm-Instanz im System. Eigener Adressraum.
-\textbf{Thread:} Parallele Ablaufsequenz innerhalb eines Programms. Teilen gleichen Adressraum.
-
-\subsection{Thread-Implementationen}
-\textbf{User-Level Threads:} Im Prozess implementiert.
-Keine echte Parallelität durch mehrere Prozessoren.
-\textbf{Kernel-Level Threads:} Im Kernel implementiert (Multi-Core Ausnutzung).
-Kontextwechsel vom Prozess per SW-Interrupt.
-\textbf{Thread Scheduling:} Processor Sharing - \#Threads \textgreater \#Prozessoren.
-
-\subsection{Prozessor Multiplexing}
-\textbf{Verzahnte Ausführung:} Instruktionen von mehreren Threads in Teilsequenzen. Illusion der Parallelität.
-\textbf{Kontextwechsel:} \textit{Synchron} (Freiwillige abgabe), Thread wechselt zu wait. \textit{Asynchron:} (gezwungene Abgabe) Begrenzte Laufzeit für Threads.
-
-\subsection{Multi-Tasking:}
-\textbf{Kooperativ:} Threads initiieren Kontextwechsel synchron (freiwillig). Scheduler kann Thread nicht unterbrechen.
-\textbf{Preemtiv:} Scheduler kann Thread mit Timer-Interrupt asynchron unterbrechen (Time-Sliced-Scheduling)(\textit{Standart heute}).
-\textbf{Thread Zustände:} Ready, Waiting, Running.
-
 \subsection{Multi-Thread Programmierung}
 \subsubsection{JVM Thread Modell}
 Java ist ein Single Process System. 
