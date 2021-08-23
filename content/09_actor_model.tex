@@ -13,27 +13,26 @@ Maschine kann Grad an Nebenläufigkeit ausnutzen.
 Nachrichtenaustausch für Netz prädestiniert.
 
 \subsection{Akka}
-Actor Model für JVM. Actors haben privaten Zustand, kann aber auf JVM nicht enforced werden.
-Eine Mailbox pro Actor: Ein Buffer für alle ankommenden Nachrichten. Asynchones Senden.\\ 
-\textbf{Empfangsverhalten:} Reaktion auf ankommende Nachricht. Behandlungsmethode wird ausgeführt.
-Effekte per Behandlung (Ändere Zustand, Sende Nachrichten, Erzeuge neue Actors).
-Intern sequentiell, nur eine Nachricht auf einmal behandelbar.
 \begin{lstlisting}
-public class Printer extends UntypedActor {
-    public void onReceive(final Object message) {
-        if(message instanceof Integer) { } } }
-// Erzeugen und Senden
-ActorSystem system = ActorSystem.create("System");
-ActorRef p = system.actorOf(Props.create(Printer.class));
-for(int i = 0; i < 100; i++) {
-    printer.tell(i, ActorRef.noSender()); // simple async
+ class ParProgActor extends UntypedActor {
+     private final int number; private ActorRef next;
+     public ParProgActor(int number) { this.number = number; }
+     public void onReceive(Object message) {
+         if(message instanceof ActorRef) {
+             next = (ActorRef)message;
+             if(number == 0) { next.tell(number, getSelf()); }
+         } else if (message instanceof Integer) {
+             int value = (int)message;
+             if(number == 0) { syso("res: " + value); }
+             else { next.tell(value + number, getSelf()); }
+         } } }
+// Hauptprogramm
+var system = ActorSystem.create("System");
+var actors = new ActorRef[SIZE];
+for (int i = 0; i < SIZE; i++) {
+    actors[i] = system.actorOf(Props.create(ParProgActor.class, i));
 }
-System.shutdown();
+for (int i = 0; i < SIZE; i ++) {
+    var next = actors[(i + 1) % SIZE];
+    actors[i].tell(next, ActorRef.noSender()); }
 \end{lstlisting}
-
-\textbf{Anwendung:}
-Alternative zu Threads, Transaction-Processing, 
-Backend für Service, Kommunikations-Hub.\\ 
-\textbf{Actor Hierarchies:}
-Passend zu URL Adressierungsschema. Erzeuger ist Parent. 
-\textit{ActorSelection} selektiert Teilbaum, broadcast möglich.

@@ -12,12 +12,39 @@ Komponentenzugriffe an UI Thread delegieren.
 // Benutzung der Klasse SwingUtilities
 static void invokeLater(Runnable doRun); // Async
 static void invokeAndWait(Runnable doRun); // Synchron 
-// Example
-button.addActionListener(event-> {
-    new Thread(() -> {
-        var text = readHugeFile();
-        SwingUtilities.invokeLater(() -> 
-                { textArea.setText(text); }); }).start(); });
+// Example unordered, parallel link check
+button.addActionListener(e -> {
+    var url = input.getText();
+    CompletableFuture.runAsync(() -> {
+        var html = webClient.download(url); // blocking
+        for(var link : webClient.extractLinks(html)) {
+            CompletableFuture.runAsync(() -> {
+                if(!webClient.isAccessible(link)) {
+                    SwingUtilities.invokeLater(() -> 
+                        output.addElement(link + " is broken"));
+                }
+            })
+        }
+    });
+});
+
+// Example (same order of downloads) - Recursive
+void download(List<URL> links, OutputStream output) {
+    if(links.isEmpty()) {
+        statusLabel.setText("All done!");
+    }
+    var url = links.get(0);
+    statusLabel.setText("Downloading" + url);
+    if(cancelBox.isSelected()) {
+        statusLabel.setText("cancelled!");
+        return;
+    }
+    CompletableFuture.runAsync(() -> {
+        url.openStream().transferTo(output);
+        var remaining = links.subList(1, links.size());
+        SwingUtilities.invokeLater(() -> download(remaining, output));
+    });
+}
 \end{lstlisting}
 
 \subsection{.NET UI Threading Modell}

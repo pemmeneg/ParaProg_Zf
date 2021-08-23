@@ -11,12 +11,22 @@ Objekt mit internem gegenseitigem Ausschluss. Nur 1 Thread operiert im Monitor. 
 \textbf{Wait \& Signal Mechanismus:} Threads können im Monitor auf Bedingung warten und wartende aufwecken (signal).
 
 \begin{lstlisting}
-public synchronized void withdraw(int a) {
-    while (amout > balance) { wait(); }
-    balance -= a;
-}
-public synchronized void deposit(int a) {
-    balance+= amount; notifyAll();
+// CyclicBarrier
+private final int parties;
+private int entered, exited = 0;
+public CyclicBarrier(int parties) { this.parties = parties; }
+public synchronized void await() throws InteruptedException {
+    entered++;
+    if(entered == parties) {
+        exited = 0;
+        notifyAll();
+    }
+    while (entered < parties) { wait(); }
+    if(exited == parties) {
+        entered = 0;
+        notifyAll();
+    }
+    while (exited < parties)  { wait(); }
 }
 \end{lstlisting}
 \textbf{notify():} Bei Uniform Waiters \& One-In-One-Out Bedingungen.

@@ -24,19 +24,33 @@ Int result = future.get(); // Blockiert bis Task beendet
 \textbf{Anzahl Tasks:} Java: Arraylänge, THRESHOLD.
 .NET: \# Freien Worker Threads falls \textless Arraylänge
 \begin{lstlisting}
-class CountTask extends RecursiveTask<Integer> {
-    // Constructor
+class PairSwapTask extends RecursiveTask<Integer> {
+    private static final int THRESHOLD = 1000;
+    private final int[] array;
+    private final int from, to;
+    public PairSwapTask(int[] array, int from, int to) {
+        this.array = array; this.from = from, this.to = to;
+    }
     @Override
     protected Integer compute() {
-        // no / single element => return result
-        // Calculate lower, middle, upper
-        var left = new CountTask(lower, middle);
-        var right = new CountTask(middle, upper);
-        left.fork(); right.fork();
-        return right.join() + left.join(); } }
+        if(to - from <= THRESHOLD) {
+            for(int i = from; i < to; i++) {
+                int offset = 2 * i;
+                int temp = array[i];
+                array[offset] = array[offset + 1];
+                array[offset + 1] = temp;
+            }
+        } else {
+            int middle = (from + to) / 2;
+            // l = new, r = new, fork(), fork(), return join() + join();
+            invokeAll(
+                new PairSwapTask(array, from, middle);
+                new PariSwapTask(array, middle, to);
+            );
+        } } }
 // Ausfuehrung 
 var threadPool = new ForkJoinPool();
-int res = threadPool.invoke(new CountTask(2, N)); // blockiert
+threadPool.invoke(new PairSwapTask(array, 0, array.length / 2));
 \end{lstlisting}
 
 \subsubsection{Fork Join Pool Internals}
@@ -50,14 +64,9 @@ Dynamisches Hinzufügen / Wegnehmen von Threads
 \textbf{Asynchroner Aufruf:} Aufrufer soll während der Operation weitermachen.
 
 \begin{lstlisting}
-// Klassisch
-Future<long> future = threadPool.submit(() -> { });
-    // other work 
-process(future.get());
-// Modern, runAsync() falls kein Rueckgabewert
-CompletableFuture<long> future = 
-                    CompletableFuture.supplyAsync(() -> { });
-    // other work 
+// runAsync() falls kein Rueckgabewert
+CompletableFuture<long> future = CompletableFuture.supplyAsync(()->{});
+// other work 
 process(future.get());
 \end{lstlisting}
 

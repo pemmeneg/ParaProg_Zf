@@ -34,4 +34,39 @@ Guter Fall: Gleiche Verzweigung im Warp.
 Zugriffsmuster für Performance optimieren.
 \textbf{Burst:}  Falls Threads auf 32-Byte-Bereiche zugreifen.
 Sonst teure Einzel-Zugriffe. (je 400 Zyklen pro Global Memory)\\ 
-\textbf{Tiles einlesen}
+\textbf{Tiles einlesen}, \textbf{Multi-Dim} Spalte auf x-Achse
+
+\subsection{Shared Memory Optimization}
+Falls Threads auf mehrere Elemente zugreifen, im SM Cachen.
+
+\subsection{Example}
+\subsubsection{1-Dimensional}
+\begin{lstlisting}
+__global__ void pairwise_sum(int* array, int length) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int offset = 2 * i;
+    if(offset + 1 < length) {
+        array[offset] += array[offset + 1];
+        array[offset + 1] = 0;
+    }
+}
+// Aufruf
+int blockSize = 1024;
+int gridSize = (len / 2 + blockSize - 1) / blockSize;
+pairwise_sum<<<gridSize, blockSize>>>(d_a, len);
+\end{lstlisting}
+
+\subsubsection{2-Dimensional}
+\begin{lstlisting}
+__global__ void transpose(int* matrix, int rows, int cols, int* result) {
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    int col = blockIdx.y * blockDim.y + threadIdx.y;
+    if(row < rows && col < cols) {
+        result[col * rows + row] = matrix[row * cols + col];
+    }
+}
+// Aufruf
+dim3 blockSize(32,32);
+dim3 gridSize((N + 31) / 32, (M + 31) / 32);
+transpose<<<gridSize, blockSize>>>(matrix, N, M, result);
+\end{lstlisting}

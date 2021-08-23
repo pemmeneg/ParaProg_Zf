@@ -8,6 +8,13 @@ Ausnahme: Synchronisationen/Speicherbarrieren
 
 \subsection{Java Memory Model}
 \subsubsection{Atomicity}
+\begin{lstlisting}
+var myInt = new AtomicInteger(1);
+var myObj = new AtomicReference(null);
+myInt.updateAndGet(x -> x * x);
+var temp = myInt.getAndSet(2); // .setAndGet(2)
+var temp1 = myInt.incrementAndGet(); // .getAndDecrement();
+\end{lstlisting}
 Einzelnes Lesen / Schreiben ist atomar für: Primitive Datentypen, Obj-Referenzen, long und double nur mit \textit{volatile} Keyword.\\ 
 \textbf{Unteilbarkeit $\neq$ Sichtbarkeit:} Nach Write sieht anderer Thread vlt. noch alten Wert.
 
@@ -38,8 +45,23 @@ public void acquire() {
     while (locked.getAndSet(true)) { }
 }
 public void release() { locked.set(false); }
+
+public void aqcuire() {
+    boolean success = false;
+    do {
+        boolean old = locked.get();
+        if(old != true) {
+            success = locked.compareAndSet(old,true);
+        }
+    } while(!success);
+}
+public void release() {
+    do {
+        boolean old = locked.get();
+    } while(locked.compareAndSet(old,false));
+}
 // Atomares Compare and Set, setzt Update falls Wert gleich expect
-boolean compareAndSet(boolean expect, boolean upadte);
+boolean compareAndSet(boolean expect, boolean upadte); 
 // Optimistische Synchronization
 do {
     oldValue = var.get(); newValue = calcChange(oldValue);
